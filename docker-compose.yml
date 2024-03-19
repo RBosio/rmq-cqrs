@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  api-gateway:
+    container_name: api-gateway
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: ./apps/api-gateway/Dockerfile
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/usr/src/app
+    command: npm run start:dev
+    depends_on:
+      - users
+      - rabbitmq
+      - mysql
+  users:
+    container_name: users
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: ./apps/users/Dockerfile
+    volumes:
+      - .:/usr/src/app
+    command: npm run start:dev users
+    depends_on:
+      - rabbitmq
+      - mysql
+  rabbitmq:
+    container_name: rabbitmq
+    env_file:
+      - .env
+    image: rabbitmq:3.12-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+  mysql:
+    container_name: mysql
+    image: mysql:8.3
+    env_file:
+      - .env
+    ports:
+      - '3306:3306'
