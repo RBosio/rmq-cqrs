@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RmqOptions, Transport } from '@nestjs/microservices';
+import { RmqOptions, Transport, RmqContext } from '@nestjs/microservices';
 
 @Injectable()
 export class RmqService {
@@ -18,5 +18,12 @@ export class RmqService {
         },
       },
     };
+  }
+
+  acknowledgmentMessage(context: RmqContext) {
+    const channel = context.getChannelRef();
+    const message = context.getMessage();
+
+    channel.ack(message);
   }
 }
