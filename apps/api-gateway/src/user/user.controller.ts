@@ -57,7 +57,7 @@ export class UserController {
         { cmd: 'updateUser' },
         {
           userId,
-          ...updateUserDto,
+          updateUserDto,
         },
       )
       .pipe(
