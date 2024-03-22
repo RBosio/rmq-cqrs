@@ -1,5 +1,5 @@
 import {
-  ConflictException,
+  BadRequestException,
   HttpStatus,
   Injectable,
   NotFoundException,
@@ -9,8 +9,8 @@ import {
 @Injectable()
 export class ErrorHandlerService {
   handle(val: { message: string; status: number }) {
-    if (val.status === HttpStatus.CONFLICT) {
-      throw new ConflictException(val.message);
+    if (val.status === HttpStatus.BAD_REQUEST) {
+      throw new BadRequestException(val.message);
     }
 
     if (val.status === HttpStatus.UNAUTHORIZED) {
