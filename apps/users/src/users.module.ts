@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
 import { RmqModule } from '@app/common/rmq/rmq.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@app/common';
+import { UsersController } from './users.controller';
 
 @Module({
   imports: [
@@ -14,6 +13,6 @@ import { DatabaseModule } from '@app/common';
     DatabaseModule,
   ],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [],
 })
 export class UsersModule {}

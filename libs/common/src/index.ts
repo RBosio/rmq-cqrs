@@ -11,3 +11,7 @@ export * from './repositories/user/user-repository';
 
 // Entities
 export * from './database/entities/user.entity';
+
+// DTO
+export * from './dto/user/create-user.dto';
+export * from './dto/user/update-user.dto';
