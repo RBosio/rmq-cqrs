@@ -1,4 +1,4 @@
-import { USER_SERVICE } from '@app/common';
+import { CreateUserDto, USER_SERVICE, UpdateUserDto } from '@app/common';
 import {
   Body,
   Controller,
@@ -37,7 +37,7 @@ export class UserController {
   }
 
   @Post()
-  createUser(@Body() createUserDto: any) {
+  createUser(@Body() createUserDto: CreateUserDto) {
     return this.userClient.send({ cmd: 'createUser' }, createUserDto).pipe(
       catchError((val) => {
         this.errorHandler.handle(val);
@@ -48,14 +48,25 @@ export class UserController {
   }
 
   @Patch(':userId')
-  updateUser(@Param('userId') userId: string, @Body() updateUserDto: any) {
-    return this.userClient.send({ cmd: 'updateUser' }, updateUserDto).pipe(
-      catchError((val) => {
-        this.errorHandler.handle(val);
+  updateUser(
+    @Param('userId') userId: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.userClient
+      .send(
+        { cmd: 'updateUser' },
+        {
+          userId,
+          updateUserDto,
+        },
+      )
+      .pipe(
+        catchError((val) => {
+          this.errorHandler.handle(val);
 
-        return val;
-      }),
-    );
+          return val;
+        }),
+      );
   }
 
   @Delete(':userId')

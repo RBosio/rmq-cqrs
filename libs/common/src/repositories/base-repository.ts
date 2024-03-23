@@ -1,45 +1,58 @@
-import {
-  FindManyOptions,
-  FindOneOptions,
-  DeepPartial,
-  Repository,
-} from 'typeorm';
-import { BaseRepositoryInterface } from './base-repository.interface';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
+import { EntitySchemaFactory } from '../database/entities/entity-schema.factory';
+import { AggregateRoot } from '@nestjs/cqrs';
 
 interface HasId {
   id: string;
+  deleted_at: Date;
 }
 
-export abstract class BaseRepository<T extends HasId>
-  implements BaseRepositoryInterface<T>
-{
-  private readonly entity: Repository<T>;
-  constructor(entity: Repository<T>) {
+export abstract class BaseRepository<
+  TSchema extends HasId,
+  TEntity extends AggregateRoot,
+> {
+  private readonly entity: Repository<TSchema>;
+  constructor(
+    entity: Repository<TSchema>,
+    protected readonly entitySchemaFactory: EntitySchemaFactory<
+      TSchema,
+      TEntity
+    >,
+  ) {
     this.entity = entity;
   }
 
-  async findAll(options?: FindManyOptions<T>): Promise<T[]> {
-    return this.entity.find(options);
+  async findAll(options?: FindManyOptions<TSchema>): Promise<TEntity[]> {
+    return (await this.entity.find(options)).map((entity) =>
+      this.entitySchemaFactory.createFromSchema(entity),
+    );
   }
 
-  async findOneById(id: any): Promise<T> {
-    const options: FindOneOptions<T> = {
+  async findOneById(id: any): Promise<TEntity> {
+    const options: FindOneOptions<TSchema> = {
       where: {
         id,
       },
     };
-    return this.entity.findOne(options);
+
+    const entity = await this.entity.findOne(options);
+    if (!entity) return null;
+
+    return this.entitySchemaFactory.createFromSchema(entity);
   }
 
-  async findOneByOptions(options: FindOneOptions<T>): Promise<T> {
-    return this.entity.findOne(options);
+  async findOneByOptions(options: FindOneOptions<TSchema>): Promise<TEntity> {
+    const entity = await this.entity.findOne(options);
+    if (!entity) return null;
+
+    return this.entitySchemaFactory.createFromSchema(entity);
   }
 
-  create(data: DeepPartial<T>): T {
-    return this.entity.create(data);
-  }
+  async save(entity: TEntity): Promise<void> {
+    const newEntity = this.entity.create(
+      this.entitySchemaFactory.create(entity),
+    );
 
-  async save(data: DeepPartial<T>): Promise<T> {
-    return this.entity.save(data);
+    this.entity.save(newEntity);
   }
 }
