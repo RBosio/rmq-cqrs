@@ -10,6 +10,7 @@ import {
 import { CreateUserCommand } from './commands/impl/create-user.command';
 import { UpdateUserCommand } from './commands/impl/update-user.command';
 import { UserQuery } from './queries/impl/user';
+import { UsersQuery } from './queries/impl/users';
 
 @Controller()
 export class UsersController {
@@ -17,6 +18,16 @@ export class UsersController {
     private commandBus: CommandBus,
     private queryBus: QueryBus,
   ) {}
+
+  @MessagePattern({ cmd: 'findUsers' })
+  async findUsers(@Ctx() context: RmqContext) {
+    const channel = context.getChannelRef();
+    const message = context.getMessage();
+
+    channel.ack(message);
+
+    return this.queryBus.execute(new UsersQuery());
+  }
 
   @MessagePattern({ cmd: 'findUser' })
   async findUser(@Ctx() context: RmqContext, @Payload() userId: string) {
