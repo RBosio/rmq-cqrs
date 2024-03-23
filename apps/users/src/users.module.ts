@@ -8,6 +8,7 @@ import { CommandHandlers } from './commands/handlers';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserFactory } from './user.factory';
 import { UserSchemaFactory } from '@app/common/database/entities/user-schema.factory';
+import { QueryHandlers } from './queries/handlers';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UserSchemaFactory } from '@app/common/database/entities/user-schema.fac
   controllers: [UsersController],
   providers: [
     ...CommandHandlers,
+    ...QueryHandlers,
     UserRepository,
     UserFactory,
     UserSchemaFactory,
